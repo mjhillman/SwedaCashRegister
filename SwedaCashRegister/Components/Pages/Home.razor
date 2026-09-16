@@ -1,0 +1,35 @@
+﻿@page "/"
+@using SwedaCashRegister.Components.Custom
+@using HITS.Blazor.PushButton
+
+<PageTitle>Home</PageTitle>
+
+<MudContainer Class="d-flex align-center justify-center">
+    <SwedaCase>
+        <DisplaySlot>
+            <DigitDisplay Digits="001234" Suffix="TL" />
+        </DisplaySlot>
+        <KeyboardSlot>
+            <div class="keyboard-cluster">
+                <div class="button-keyboard">
+                    <Keyboard />
+                </div>
+                <PushButton ButtonHeight="@BigButtonHeight"
+                            ButtonWidth="@BigButtonWidth"
+                            Color="black"
+                            Text="Enter"
+                            ShowHighlight="false"
+                            Class="enter-button" />
+            </div>
+        </KeyboardSlot>
+    </SwedaCase>
+</MudContainer>
+
+@code {
+    private const int ButtonHeight = 40;
+    private const int ButtonWidth = 40;
+
+    // 3x width, 7x height of a standard key
+    private const int BigButtonWidth = ButtonWidth * 2;
+    private const int BigButtonHeight = ButtonHeight * 5;
+}

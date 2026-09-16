@@ -1,0 +1,18 @@
+/* CSS for Home component */
+/* ============================================================
+   KEYBOARD CLUSTER — row stack + big enter button, side by side
+   ============================================================ */
+
+.keyboard-cluster {
+    display: flex;
+    align-items: center; /* was flex-start */
+    gap: 1.2rem;
+}
+
+/* Optional: nudge the big button's own text sizing since it's a
+   tall/narrow cap rather than a square one — the base .button-text
+   rule from PushButton.css still applies unless overridden here. */
+.enter-button .button-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}

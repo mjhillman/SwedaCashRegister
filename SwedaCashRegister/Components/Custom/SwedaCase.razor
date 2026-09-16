@@ -1,0 +1,27 @@
+﻿<div class="register-case">
+    <div class="register-shell">
+
+        <div class="register-vents">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="register-display-bay">
+            @DisplaySlot
+        </div>
+
+        <div class="register-nameplate">
+            <span class="nameplate-text">SWEDA</span>
+        </div>
+
+        <div class="register-keyboard-bay">
+            @KeyboardSlot
+        </div>
+
+        <div class="register-base"></div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public RenderFragment? DisplaySlot { get; set; }
+    [Parameter] public RenderFragment? KeyboardSlot { get; set; }
+}

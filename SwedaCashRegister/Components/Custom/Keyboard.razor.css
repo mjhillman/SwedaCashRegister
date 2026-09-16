@@ -1,0 +1,16 @@
+.button-keyboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-row {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 0.5rem; /* adjust this value freely now */
+}
+
+    .button-row:last-child {
+        margin-bottom: 0;
+    }

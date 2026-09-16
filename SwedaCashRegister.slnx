@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../SharedProjects/HITS.Blazor.PushButton/HITS.Blazor.PushButton.csproj" />
+  <Project Path="SwedaCashRegister/SwedaCashRegister.csproj" />
+</Solution>
