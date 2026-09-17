@@ -1,16 +1,45 @@
-.button-keyboard {
+.keyboard-cluster {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 1.2rem;
 }
 
+/* Row gap now driven by the shared --row-gap variable set inline on
+   .keyboard-cluster, so the tax buttons and the row stack always agree */
 .button-row {
     display: flex;
     gap: 0.8rem;
-    margin-bottom: 0.5rem; /* adjust this value freely now */
+    margin-bottom: var(--row-gap);
 }
 
     .button-row:last-child {
         margin-bottom: 0;
     }
+
+/* ============================================================
+   TAX COLUMN — TAXABLE / spacer / NON-TAXABLE
+   ============================================================ */
+
+.tax-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--row-gap);
+}
+
+/* Height = exactly 4 keys + the 3 gaps between them,
+   so it always matches 4 rows of the keypad regardless of row-gap value */
+::deep .dept-button-text {
+    writing-mode: vertical-rl !important;
+    text-orientation: upright !important;
+    white-space: nowrap !important;
+    font-size: 13px;
+    letter-spacing: 2px;
+    line-height: 1.1;
+}
+
+/* Invisible placeholder occupying exactly the space of the
+   removed "5" department button (row 5, column 1) */
+.tax-spacer {
+    height: var(--btn-size);
+    width: var(--btn-size);
+}
