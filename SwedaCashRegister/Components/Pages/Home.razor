@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using HITS.Blazor.PushButton
 @using SwedaCashRegister.Components.Custom
+@inject IJSRuntime JS
 
 <PageTitle>Home</PageTitle>
 
@@ -40,30 +41,7 @@
         <div class="register-keyboard-bay">
             <div class="keyboard-cluster">
                 <div class="button-keyboard">
-                    <div class="keyboard-cluster" style="--btn-size:@(ButtonHeight)px; --row-gap:@(RowGap)rem;">
-
-                        <div class="tax-column">
-                            <PushButton ButtonWidth="@DeptButtonWidth"
-                                        ButtonHeight="@DeptButtonHeight"
-                                        Color="black"
-                                        Class="dept-button-text"
-                                        ShowHighlight="false"
-                                        Text="TAXABLE"
-                                        Pressed="@(_taxSelection == TaxKey.Taxable)"
-                                        OnClick="@(() => SelectTax(TaxKey.Taxable))" />
-
-                            <div class="tax-spacer"></div>
-
-                            <PushButton ButtonWidth="@DeptButtonWidth"
-                                        ButtonHeight="@DeptButtonHeight"
-                                        Color="black"
-                                        Class="dept-button-text"
-                                        ShowHighlight="false"
-                                        Text="NON-TAX"
-                                        Pressed="@(_taxSelection == TaxKey.NonTaxable)"
-                                        OnClick="@(() => SelectTax(TaxKey.NonTaxable))" />
-                        </div>
-
+                    <div class="keyboard-cluster" style="--btn-size:@(ButtonMargin)px; --row-gap:@(RowGap)rem;">
                         <div class="button-keyboard">
                             @for (int row = 0; row < RowValues.Length; row++)
                             {
@@ -85,7 +63,9 @@
                             }
                         </div>
 
-                        <div class="tax-column">
+                        <div class="total-column">
+                            
+
                             <PushButton ButtonHeight="@ButtonHeight"
                                         ButtonWidth="@BigButtonWidth"
                                         Color="red"
@@ -97,22 +77,42 @@
                             <PushButton ButtonHeight="@ButtonHeight"
                                         ButtonWidth="@BigButtonWidth"
                                         Color="red"
-                                        Text="VOID"
+                                        Text="VOID-TX"
                                         ShowHighlight="false"
                                         Class="enter-button"
-                                        OnClick="HandleItemVoid" />
-
-                            <div class="tax-spacer"></div>
+                                        OnClick="@(() => HandleItemVoid(TaxKey.Taxable))" />
 
                             <PushButton ButtonHeight="@ButtonHeight"
                                         ButtonWidth="@BigButtonWidth"
-                                        Color="green"
-                                        Text="+ ITEM"
+                                        Color="red"
+                                        Text="V-NON"
                                         ShowHighlight="false"
                                         Class="enter-button"
-                                        OnClick="HandleItem" />
+                                        OnClick="@(() => HandleItemVoid(TaxKey.NonTaxable))" />
 
                             <div class="tax-spacer"></div>
+
+                            <PushButton ButtonWidth="@BigButtonWidth"
+                                        ButtonHeight="@ButtonHeight"
+                                        Color="gold"
+                                        Class="enter-button"
+                                        ShowHighlight="false"
+                                        Text="TAXABLE"
+                                        Pressed="@(_taxSelection == TaxKey.Taxable)"
+                                        OnClick="@(() => SelectTax(TaxKey.Taxable))" />
+
+
+                            <PushButton ButtonWidth="@BigButtonWidth"
+                                        ButtonHeight="@ButtonHeight"
+                                        Color="gold"
+                                        Class="enter-button"
+                                        ShowHighlight="false"
+                                        Text="NON-TAX"
+                                        Pressed="@(_taxSelection == TaxKey.NonTaxable)"
+                                        OnClick="@(() => SelectTax(TaxKey.NonTaxable))" />
+
+                            <div class="tax-spacer"></div>
+
 
                             <PushButton ButtonHeight="@BigButtonHeight"
                                         ButtonWidth="@BigButtonWidth"
@@ -132,3 +132,4 @@
     </div>
 </div>
 </MudContainer>
+

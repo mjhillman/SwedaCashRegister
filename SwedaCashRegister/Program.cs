@@ -1,13 +1,14 @@
 using MudBlazor.Services;
 using SwedaCashRegister.Components;
+using SwedaCashRegister.Components.Services;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add MudBlazor services
 builder.Services.AddMudServices();
-
-// Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddSingleton<IReceiptTemplateProvider, ReceiptTemplateProvider>();
 
 var app = builder.Build();
 
@@ -24,4 +25,16 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
+InitConfiguration();
+
 app.Run();
+
+partial class Program
+{
+    public static string EXECUTING_DIRECTORY { get; set; } = "";
+
+    public static void InitConfiguration()
+    {
+        EXECUTING_DIRECTORY = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "";
+    }
+}

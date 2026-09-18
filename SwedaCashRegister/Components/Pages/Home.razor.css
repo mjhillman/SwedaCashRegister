@@ -33,7 +33,7 @@
    TAX COLUMN — TAXABLE / spacer / NON-TAXABLE
    ============================================================ */
 
-.tax-column {
+.total-column {
     display: flex;
     flex-direction: column;
     gap: var(--row-gap);

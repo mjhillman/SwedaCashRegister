@@ -1,19 +1,27 @@
-using Microsoft.AspNetCore.Components;
-using SwedaCashRegister.Components.Custom;
 using HITS.Blazor.PushButton;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using MudBlazor;
+using SwedaCashRegister.Components.Custom;
+using SwedaCashRegister.Components.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SwedaCashRegister.Components.Pages
 {
     public partial class Home : ComponentBase
     {
+        [Inject] public IReceiptTemplateProvider ReceiptTemplate { get; set; }
+        [Inject] public IDialogService DialogService { get; set; }
+
         private enum TransactionStateEnum { New, ItemEntry, Total }
         private TransactionStateEnum _transactionState = TransactionStateEnum.New;
 
         private const int ButtonHeight = 40;
         private const int ButtonWidth = 40;
+        private const int ButtonMargin = 20;
         private const double RowGap = 0.5; // rem — MUST match .button-row's margin-bottom in CSS
 
-        private const int BigButtonWidth = 90;
+        private const int BigButtonWidth = 110;
         private const int BigButtonHeight = 120;
 
         private const int MedButtonWidth = 80;
@@ -46,6 +54,14 @@ namespace SwedaCashRegister.Components.Pages
         // column index -> currently-down ROW (digit) in that column
         private readonly Dictionary<int, int> _downRowByColumn = new();
 
+        private string[] HeaderLines { get; set; }
+        private string[] FooterLines { get; set; }
+
+        protected override void OnInitialized()
+        {
+            
+        }
+
         private bool IsKeyDown(int row, int col) =>
             _downRowByColumn.TryGetValue(col, out var downRow) && downRow == row;
 
@@ -57,6 +73,7 @@ namespace SwedaCashRegister.Components.Pages
         private void SelectTax(TaxKey key)
         {
             _taxSelection = key;
+            HandleItem();
         }
 
         private void ResetAllKeys()
@@ -115,8 +132,9 @@ namespace SwedaCashRegister.Components.Pages
             ResetAllKeys();
         }
 
-        private void HandleItemVoid()
+        private void HandleItemVoid(TaxKey taxKey)
         {
+            _taxSelection = taxKey;
             _transactionState = TransactionStateEnum.ItemEntry;
             decimal itemAmount = 0;
             bool isTaxable = GetItemEntry(ref itemAmount);
@@ -142,6 +160,7 @@ namespace SwedaCashRegister.Components.Pages
             Suffix = "TL";
             Digits = DisplayTotalDigits;
             ResetAllKeys();
+            _ = ShowReceipt();
         }
 
         private string DisplayTotalDigits
@@ -166,6 +185,18 @@ namespace SwedaCashRegister.Components.Pages
 
         private char GetDigit(int index) => index < Digits.Length ? Digits[index] : '0';
 
+        private async Task ShowReceipt()
+        {
+            string receiptText = ReceiptGenerator.GenerateReceipt(_currentTransaction, ReceiptTemplate.Header, ReceiptTemplate.Footer);
 
+            var parameters = new DialogParameters<ReceiptDialog>
+            {
+                { x => x.ReceiptText, receiptText }
+            };
+
+            var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+            await DialogService.ShowAsync<ReceiptDialog>("Receipt", parameters, options);
+        }
     }
 }
