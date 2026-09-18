@@ -6,6 +6,9 @@ namespace SwedaCashRegister.Components.Pages
 {
     public partial class Home : ComponentBase
     {
+        private enum TransactionStateEnum { New, ItemEntry, Total }
+        private TransactionStateEnum _transactionState = TransactionStateEnum.New;
+
         private const int ButtonHeight = 40;
         private const int ButtonWidth = 40;
         private const double RowGap = 0.5; // rem — MUST match .button-row's margin-bottom in CSS
@@ -24,7 +27,7 @@ namespace SwedaCashRegister.Components.Pages
         private Transaction _currentTransaction = new Transaction();
 
         public string Digits { get; set; } = "000000";
-        public string Suffix { get; set; } = "TL";
+        public string Suffix { get; set; } = "ST";
 
         // Each row's buttons, in display order: (Text, Color)
         private static readonly (string Text, string Color)[][] RowValues = new[]
@@ -62,8 +65,9 @@ namespace SwedaCashRegister.Components.Pages
             _downRowByColumn.Clear();
         }
 
-        private bool CalculateItemTotal(ref decimal itemAmount)
+        private bool GetItemEntry(ref decimal itemAmount)
         {
+            _transactionState = TransactionStateEnum.ItemEntry;
             int dollars = 0;   // from columns 0,1,2 (hundreds/tens/ones of dollars)
             int cents = 0;     // from columns 3,4 (tens/ones of cents)
 
@@ -80,37 +84,62 @@ namespace SwedaCashRegister.Components.Pages
 
             itemAmount = dollars + (cents / 100m);
 
-            return _taxSelection == TaxKey.Taxable;
+            if (_taxSelection == TaxKey.Taxable) return true;
+            return false;
         }
 
         private void HandleReset()
         {
+            _transactionState = TransactionStateEnum.New;
             _currentTransaction = new Transaction();
             ResetAllKeys();
+            Digits = DisplayTotalDigits;
         }
 
         private void HandleItem()
         {
+            _transactionState = TransactionStateEnum.ItemEntry;
             decimal itemAmount = 0;
-            bool isTaxable = CalculateItemTotal(ref itemAmount);
+            bool isTaxable = GetItemEntry(ref itemAmount);
             if (isTaxable)
             {
-                _currentTransaction.TaxableTotal += itemAmount;
+                _currentTransaction.ItemList.Add(new Item("Taxable", true, 1, "Item", itemAmount));
             }
             else
             {
-                _currentTransaction.NonTaxTotal += itemAmount;
+                _currentTransaction.ItemList.Add(new Item("Non-Tax", false, 1, "Item", itemAmount));
             }
+            _currentTransaction.CalculateSubtotal();
+            Suffix = "ST";
             Digits = DisplaySubtotalDigits;
             ResetAllKeys();
         }
 
         private void HandleItemVoid()
         {
+            _transactionState = TransactionStateEnum.ItemEntry;
+            decimal itemAmount = 0;
+            bool isTaxable = GetItemEntry(ref itemAmount);
+            if (isTaxable)
+            {
+                _currentTransaction.ItemList.Add(new Item("Taxable", true, 1, "Void", itemAmount * -1));
+            }
+            else
+            {
+                _currentTransaction.ItemList.Add(new Item("Non-Tax", false, 1, "Void", itemAmount * -1));
+            }
+            _currentTransaction.CalculateSubtotal();
+            Suffix = "ST";
+            Digits = DisplaySubtotalDigits;
+            ResetAllKeys();
+
         }
 
         private void HandleTotal()
         {
+            _transactionState = TransactionStateEnum.Total;
+            _currentTransaction.CalculateTotal();
+            Suffix = "TL";
             Digits = DisplayTotalDigits;
             ResetAllKeys();
         }
@@ -119,7 +148,7 @@ namespace SwedaCashRegister.Components.Pages
         {
             get
             {
-                long totalCents = (long)Math.Round(_currentTransaction.GetTotal() * 100m, MidpointRounding.AwayFromZero);
+                long totalCents = (long)Math.Round(_currentTransaction.CalculateTotal() * 100m, MidpointRounding.AwayFromZero);
                 totalCents = Math.Clamp(totalCents, 0, 999999);
                 return totalCents.ToString("D6");
             }
@@ -129,7 +158,7 @@ namespace SwedaCashRegister.Components.Pages
         {
             get
             {
-                long totalCents = (long)Math.Round(_currentTransaction.GetSubtotal() * 100m, MidpointRounding.AwayFromZero);
+                long totalCents = (long)Math.Round(_currentTransaction.CalculateSubtotal() * 100m, MidpointRounding.AwayFromZero);
                 totalCents = Math.Clamp(totalCents, 0, 999999);
                 return totalCents.ToString("D6");
             }

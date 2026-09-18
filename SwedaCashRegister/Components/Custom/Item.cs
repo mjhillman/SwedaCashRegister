@@ -1,0 +1,22 @@
+﻿namespace SwedaCashRegister.Components.Custom
+{
+    public class Item
+    {
+        public string DeptName { get; set; }
+        public bool IsTaxable { get; set; }
+        public int ItemQty { get; set; }
+        public string ItemName { get; set; }
+        public decimal ItemAmount { get; set; }
+
+        public Item() { }
+
+        public Item(string deptName, bool isTaxable, int itemQty, string itemName, decimal itemAmount)
+        {
+            DeptName = deptName;
+            IsTaxable = isTaxable;
+            ItemQty = itemQty;
+            ItemName = itemName;
+            ItemAmount = itemAmount;
+        }
+    }
+}
