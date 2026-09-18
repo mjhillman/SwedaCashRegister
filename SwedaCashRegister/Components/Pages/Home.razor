@@ -1,29 +1,134 @@
 ﻿@page "/"
-@using SwedaCashRegister.Components.Custom
 @using HITS.Blazor.PushButton
+@using SwedaCashRegister.Components.Custom
 
 <PageTitle>Home</PageTitle>
 
 <MudContainer Class="d-flex align-center justify-center">
-    <SwedaCase>
-        <DisplaySlot>
-            <DigitDisplay Digits="001234" Suffix="TL" />
-        </DisplaySlot>
-        <KeyboardSlot>
-            <div class="keyboard-cluster">
-                <div class="button-keyboard">
-                    <Keyboard />
+<div class="register-case">
+    <div class="register-shell">
+
+        <div class="register-vents">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="register-display-bay">
+            <div class="display-panel">
+                <div class="display-bezel">
+                    <div class="display-window">
+                        <span class="display-digit">@GetDigit(0)</span>
+                        <span class="display-comma"></span>
+                        <span class="display-digit">@GetDigit(1)</span>
+                        <span class="display-digit">@GetDigit(2)</span>
+                        <span class="display-digit">@GetDigit(3)</span>
+                        <span class="display-dot"></span>
+                        <span class="display-digit">@GetDigit(4)</span>
+                        <span class="display-digit">@GetDigit(5)</span>
+                        @if (!string.IsNullOrEmpty(Suffix))
+                        {
+                            <span class="display-suffix">@Suffix</span>
+                        }
+                    </div>
                 </div>
             </div>
-        </KeyboardSlot>
-    </SwedaCase>
+        </div>
+
+        <div class="register-nameplate">
+            <span class="nameplate-text">SWEDA</span>
+        </div>
+
+        <div class="register-keyboard-bay">
+            <div class="keyboard-cluster">
+                <div class="button-keyboard">
+                    <div class="keyboard-cluster" style="--btn-size:@(ButtonHeight)px; --row-gap:@(RowGap)rem;">
+
+                        <div class="tax-column">
+                            <PushButton ButtonWidth="@DeptButtonWidth"
+                                        ButtonHeight="@DeptButtonHeight"
+                                        Color="black"
+                                        Class="dept-button-text"
+                                        ShowHighlight="false"
+                                        Text="TAXABLE"
+                                        Pressed="@(_taxSelection == TaxKey.Taxable)"
+                                        OnClick="@(() => SelectTax(TaxKey.Taxable))" />
+
+                            <div class="tax-spacer"></div>
+
+                            <PushButton ButtonWidth="@DeptButtonWidth"
+                                        ButtonHeight="@DeptButtonHeight"
+                                        Color="black"
+                                        Class="dept-button-text"
+                                        ShowHighlight="false"
+                                        Text="NON-TAX"
+                                        Pressed="@(_taxSelection == TaxKey.NonTaxable)"
+                                        OnClick="@(() => SelectTax(TaxKey.NonTaxable))" />
+                        </div>
+
+                        <div class="button-keyboard">
+                            @for (int row = 0; row < RowValues.Length; row++)
+                            {
+                                var r = row; // fresh local, captured once per row iteration
+                                <div class="button-row">
+                                    @for (int col = 0; col < RowValues[r].Length; col++)
+                                    {
+                                        var c = col; // fresh local, captured once per col iteration
+                                        var (text, color) = RowValues[r][c];
+                                        <PushButton @key="@($"{r}-{c}")"
+                                                    ButtonHeight="@ButtonHeight"
+                                                    ButtonWidth="@ButtonWidth"
+                                                    Color="@color"
+                                                    Text="@text"
+                                                    Pressed="@(IsKeyDown(r, c))"
+                                                    OnClick="@(() => SelectKey(r, c))" />
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <div class="tax-column">
+                            <PushButton ButtonHeight="@ButtonHeight"
+                                        ButtonWidth="@BigButtonWidth"
+                                        Color="red"
+                                        Text="RESET"
+                                        ShowHighlight="false"
+                                        Class="enter-button"
+                                        OnClick="HandleReset" />
+
+                            <PushButton ButtonHeight="@ButtonHeight"
+                                        ButtonWidth="@BigButtonWidth"
+                                        Color="red"
+                                        Text="VOID"
+                                        ShowHighlight="false"
+                                        Class="enter-button"
+                                        OnClick="HandleItemVoid" />
+
+                            <div class="tax-spacer"></div>
+
+                            <PushButton ButtonHeight="@ButtonHeight"
+                                        ButtonWidth="@BigButtonWidth"
+                                        Color="green"
+                                        Text="+ ITEM"
+                                        ShowHighlight="false"
+                                        Class="enter-button"
+                                        OnClick="HandleItem" />
+
+                            <div class="tax-spacer"></div>
+
+                            <PushButton ButtonHeight="@BigButtonHeight"
+                                        ButtonWidth="@BigButtonWidth"
+                                        Color="blue"
+                                        Text="TOTAL"
+                                        ShowHighlight="false"
+                                        Class="enter-button"
+                                        OnClick="HandleTotal" />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="register-base"></div>
+    </div>
+</div>
 </MudContainer>
-
-@code {
-    private const int ButtonHeight = 40;
-    private const int ButtonWidth = 40;
-
-    // 3x width, 7x height of a standard key
-    private const int BigButtonWidth = ButtonWidth * 2;
-    private const int BigButtonHeight = ButtonHeight * 5;
-}

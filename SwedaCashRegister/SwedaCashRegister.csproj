@@ -7,6 +7,14 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Remove="Components\Custom\Keyboard.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Components\Custom\Keyboard.razor.css" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="MudBlazor" Version="9.*" />
