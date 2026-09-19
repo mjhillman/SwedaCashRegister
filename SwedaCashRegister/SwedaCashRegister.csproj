@@ -45,10 +45,15 @@
 
 
   <ItemGroup>
-    <Content Update="wwwroot\receipt\Footer.txt">
+    <Folder Include="wwwroot\receipts\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Update="wwwroot\receiptSettings\Footer.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\receipt\Header.txt">
+    <Content Update="wwwroot\receiptSettings\Header.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

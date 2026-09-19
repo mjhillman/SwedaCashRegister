@@ -22,15 +22,6 @@ namespace SwedaCashRegister.Components.Services
                 });
             });
         }
-
-        public static string SavePdfToDisk(string fileName, string text)
-        {
-            string folder = Path.Combine(Program.EXECUTING_DIRECTORY, "wwwroot", "receipts");
-            Directory.CreateDirectory(folder); // Ensure the directory exists
-            string path = Path.Combine(folder, fileName);
-            File.WriteAllText(path, text);
-            return path;
-        }
     }
 }
 

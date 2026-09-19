@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc.Razor.Internal;
 using MudBlazor;
 using QuestPDF.Fluent;
 using SwedaCashRegister.Components.Custom;
 using SwedaCashRegister.Components.Services;
+using System.Data.Common;
 
 namespace SwedaCashRegister.Components.Pages
 {
@@ -10,6 +12,7 @@ namespace SwedaCashRegister.Components.Pages
     {
         [Inject] public IReceiptTemplateProvider ReceiptTemplate { get; set; }
         [Inject] public IDialogService DialogService { get; set; }
+        [Inject] public NavigationManager NavigationManager { get; set; }
 
         private enum TransactionStateEnum { New, ItemEntry, Total }
         private TransactionStateEnum _transactionState = TransactionStateEnum.New;
@@ -194,10 +197,12 @@ namespace SwedaCashRegister.Components.Pages
 
         private void HandleReports()
         {
+            NavigationManager.NavigateTo("/reports");
         }
 
         private void HandleSettings()
         {
+            NavigationManager.NavigateTo("/settings");
         }
 
         private string DisplayTotalDigits
@@ -226,10 +231,23 @@ namespace SwedaCashRegister.Components.Pages
         {
             try
             {
+                //save transaction detail to disk
+                string receiptFileName = $"{DateTime.UtcNow:yyMMdd_HHmmss}.txt";
+                string reportFileName = $"{DateTime.UtcNow:yyMMdd}.txt";
                 string receiptText = ReceiptGenerator.GenerateReceipt(_currentTransaction, ReceiptTemplate.Header, ReceiptTemplate.Footer);
+                string path = RecordTransaction.WriteTranaction($"{receiptFileName}", receiptText);
+
+                // Append transaction summary to report file
+                var roundingItem = _currentTransaction.ItemList.FirstOrDefault(i => i.ItemName == "RND");
+                decimal roundingAmount = roundingItem?.ItemAmount ?? 0m;
+                
+                string reportText = $"{Path.GetFileNameWithoutExtension(receiptFileName)},{_currentTransaction.TaxableTotal},{_currentTransaction.NonTaxTotal}, {_currentTransaction.TaxAmount},{roundingAmount}{Environment.NewLine}";
+                RecordTransaction.AppendReport(reportFileName, reportText);
+
+                // Generate and display the PDF receipt
                 var pdfDocument = ReceiptPdfGenerator.GeneratePdf(receiptText);
                 pdfDocument.GeneratePdfAndShow();
-                string path = ReceiptPdfGenerator.SavePdfToDisk($"{DateTime.UtcNow:yyMMdd_HHmmss}.txt", receiptText);
+                
             }
             catch (Exception ex)
             {

@@ -1,0 +1,279 @@
+﻿
+@page "/Reports"
+@inject IDialogService DialogService
+@using System.Globalization
+@using System.IO
+@using MudBlazor
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4 mb-5" Style="background-color:lightblue;">
+    <MudStack Row="true" Class="pt-5">
+        <MudText Typo="Typo.h4" Class="mb-4">Reports</MudText>
+        <div class="d-flex justify-space-between align-center mb-2">
+            <MudButton Class="ml-20" Size="Size.Small" Color="Color.Info" Variant="Variant.Filled" Href="/">Back</MudButton>
+        </div>
+    </MudStack>
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudPaper Class="pa-3 ma-5" Elevation="2" Style="background-color:seashell;">
+                <div class="d-flex justify-space-between align-center mb-2">
+                    <MudText Typo="Typo.h6">Report Files</MudText>
+                    <MudButton Size="Size.Small" Color="Color.Error" Variant="Variant.Filled"
+                               Disabled="@(ReportFiles.Count == 0)"
+                               OnClick="ConfirmDeleteAll">
+                        Delete All
+                    </MudButton>
+                </div>
+
+                @if (ReportFiles.Count == 0)
+                {
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">No report files found.</MudText>
+                }
+                else
+                {
+                    <MudList T="string" Clickable="false">
+                        @foreach (var file in ReportFiles)
+                        {
+                            <MudListItem T="string">
+                                <div class="d-flex justify-space-between align-center" style="width:100%; cursor:pointer;"
+                                     @onclick="@(() => OnReportSelected(file))">
+                                    <span style="@(file == SelectedReportFile ? "font-weight:bold;" : "")">@file</span>
+                                    <span @onclick:stopPropagation="true">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error"
+                                                       OnClick="@(() => ConfirmDeleteReport(file))" />
+                                    </span>                                
+                                </div>
+                            </MudListItem>
+                        }
+                    </MudList>
+                }
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" md="8">
+            @if (!string.IsNullOrEmpty(SelectedReportFile))
+            {
+                <MudPaper Class="pa-3 ma-5" Elevation="2" Style="background-color:seashell;">
+                    <MudText Typo="Typo.h6" Class="mb-2">@SelectedReportFile</MudText>
+
+                    @if (CurrentReportLines.Count == 0)
+                    {
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">No data in this report.</MudText>
+                    }
+                    else
+                    {
+                        <MudTable Items="CurrentReportLines" Hover="true" Dense="true"
+                                  OnRowClick="@((TableRowClickEventArgs<ReportLine> e) => ShowReceipt(e.Item))">
+                            <HeaderContent>
+                                <MudTh>Transaction</MudTh>
+                                <MudTh>Taxable</MudTh>
+                                <MudTh>Non-Taxable</MudTh>
+                                <MudTh>Tax</MudTh>
+                                <MudTh>Rounding</MudTh>
+                                <MudTh>Total</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.TransactionId</MudTd>
+                                <MudTd>@context.TaxableTotal.ToString("C2")</MudTd>
+                                <MudTd>@context.NonTaxTotal.ToString("C2")</MudTd>
+                                <MudTd>@context.TaxAmount.ToString("C2")</MudTd>
+                                <MudTd>@context.RoundingAmount.ToString("C2")</MudTd>
+                                <MudTd>@context.Total.ToString("C2")</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+
+                        <MudText Typo="Typo.subtitle1" Class="mt-3" Align="Align.Right">
+                            Report Total: @CurrentReportLines.Sum(l => l.Total).ToString("C2")
+                        </MudText>
+                    }
+                </MudPaper>
+            }
+
+            @if (!string.IsNullOrEmpty(SelectedTransactionId))
+            {
+                <MudPaper Class="pa-3 ma-5" Elevation="2" Style="background-color:seashell;">
+                    <MudText Typo="Typo.h6" Class="mb-2">Receipt: @SelectedTransactionId</MudText>
+
+                    @if (!string.IsNullOrEmpty(SelectedReceiptPdfUrl))
+                    {
+                        <iframe src="@SelectedReceiptPdfUrl" style="width:100%; height:60vh; border:none;"></iframe>
+                    }
+                    else if (!string.IsNullOrEmpty(SelectedReceiptText))
+                    {
+                        <pre style="font-family:'Courier New', monospace; white-space:pre-wrap;">@SelectedReceiptText</pre>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">Receipt file not found.</MudText>
+                    }
+                </MudPaper>
+            }
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private record ReportLine(string TransactionId, decimal TaxableTotal, decimal NonTaxTotal, decimal TaxAmount, decimal RoundingAmount)
+    {
+        public decimal Total => TaxableTotal + NonTaxTotal + TaxAmount + RoundingAmount;
+    }
+
+    private string ReportsPath => Path.Combine(Program.EXECUTING_DIRECTORY, "wwwroot", "reports");
+    private string ReceiptsPath => Path.Combine(Program.EXECUTING_DIRECTORY, "wwwroot", "receipts");
+
+    private List<string> ReportFiles = new();
+    private string? SelectedReportFile;
+    private List<ReportLine> CurrentReportLines = new();
+
+    private string? SelectedTransactionId;
+    private string? SelectedReceiptText;
+    private string? SelectedReceiptPdfUrl;
+
+    protected override void OnInitialized()
+    {
+        LoadReportFiles();
+    }
+
+    private void LoadReportFiles()
+    {
+        ReportFiles.Clear();
+
+        if (!Directory.Exists(ReportsPath))
+        {
+            Directory.CreateDirectory(ReportsPath);
+            return;
+        }
+
+        ReportFiles = Directory.GetFiles(ReportsPath, "*.txt")
+            .Select(Path.GetFileName)
+            .OrderByDescending(f => f) // filenames are timestamp-based, so this sorts newest-first
+            .ToList()!;
+    }
+
+    private void OnReportSelected(string fileName)
+    {
+        SelectedReportFile = fileName;
+        SelectedTransactionId = null;
+        SelectedReceiptText = null;
+        SelectedReceiptPdfUrl = null;
+
+        CurrentReportLines = ParseReportFile(fileName);
+    }
+
+    private List<ReportLine> ParseReportFile(string fileName)
+    {
+        var lines = new List<ReportLine>();
+        string filePath = Path.Combine(ReportsPath, fileName);
+
+        if (!File.Exists(filePath))
+            return lines;
+
+        foreach (var rawLine in File.ReadAllLines(filePath))
+        {
+            if (string.IsNullOrWhiteSpace(rawLine))
+                continue;
+
+            var parts = rawLine.Split(',').Select(p => p.Trim()).ToArray();
+
+            if (parts.Length < 5)
+                continue; // skip malformed lines rather than throwing
+
+            if (!decimal.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out var taxable)) continue;
+            if (!decimal.TryParse(parts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out var nonTax)) continue;
+            if (!decimal.TryParse(parts[3], NumberStyles.Any, CultureInfo.InvariantCulture, out var tax)) continue;
+            if (!decimal.TryParse(parts[4], NumberStyles.Any, CultureInfo.InvariantCulture, out var rounding)) continue;
+
+            lines.Add(new ReportLine(parts[0], taxable, nonTax, tax, rounding));
+        }
+
+        return lines;
+    }
+
+    private void ShowReceipt(ReportLine line)
+    {
+        SelectedTransactionId = line.TransactionId;
+        SelectedReceiptPdfUrl = null;
+        SelectedReceiptText = null;
+        
+        string txtPath = Path.Combine(ReceiptsPath, $"{line.TransactionId}.txt");
+
+        if (File.Exists(txtPath))
+        {
+            SelectedReceiptText = File.ReadAllText(txtPath);
+        }
+    }
+
+    private async Task ConfirmDeleteReport(string fileName)
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            "Delete Report",
+            $"Delete report '{fileName}' and all its associated receipts? This cannot be undone.",
+            yesText: "Delete", cancelText: "Cancel");
+
+        if (confirmed == true)
+        {
+            DeleteReport(fileName);
+        }
+    }
+
+    private async Task ConfirmDeleteAll()
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            "Delete All Reports",
+            "Delete ALL reports and their associated receipts? This cannot be undone.",
+            yesText: "Delete All", cancelText: "Cancel");
+
+        if (confirmed == true)
+        {
+            foreach (var file in ReportFiles.ToList())
+            {
+                DeleteReport(file, refreshAfter: false);
+            }
+
+            LoadReportFiles();
+            SelectedReportFile = null;
+            CurrentReportLines.Clear();
+            SelectedTransactionId = null;
+            SelectedReceiptText = null;
+            SelectedReceiptPdfUrl = null;
+        }
+    }
+
+    private void DeleteReport(string fileName, bool refreshAfter = true)
+    {
+        var lines = ParseReportFile(fileName);
+
+        foreach (var line in lines)
+        {
+            DeleteReceiptFiles(line.TransactionId);
+        }
+
+        string reportPath = Path.Combine(ReportsPath, fileName);
+        if (File.Exists(reportPath))
+        {
+            File.Delete(reportPath);
+        }
+
+        if (refreshAfter)
+        {
+            LoadReportFiles();
+
+            if (SelectedReportFile == fileName)
+            {
+                SelectedReportFile = null;
+                CurrentReportLines.Clear();
+                SelectedTransactionId = null;
+                SelectedReceiptText = null;
+                SelectedReceiptPdfUrl = null;
+            }
+        }
+    }
+
+    private void DeleteReceiptFiles(string transactionId)
+    {
+        string pdfPath = Path.Combine(ReceiptsPath, $"{transactionId}.pdf");
+        string txtPath = Path.Combine(ReceiptsPath, $"{transactionId}.txt");
+
+        if (File.Exists(pdfPath)) File.Delete(pdfPath);
+        if (File.Exists(txtPath)) File.Delete(txtPath);
+    }
+}

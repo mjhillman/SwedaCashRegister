@@ -13,9 +13,9 @@
 
         public ReceiptTemplateProvider()
         {
-            Header = File.ReadAllText(Path.Combine(Program.EXECUTING_DIRECTORY, "wwwroot", "receipt", "header.txt")).TrimEnd();
+            Header = File.ReadAllText(Path.Combine(Program.EXECUTING_DIRECTORY, "wwwroot", "receiptSettings", "header.txt")).TrimEnd();
 
-            Footer = File.ReadAllText(Path.Combine(Program.EXECUTING_DIRECTORY, "wwwroot", "receipt", "footer.txt")).TrimEnd();
+            Footer = File.ReadAllText(Path.Combine(Program.EXECUTING_DIRECTORY, "wwwroot", "receiptSettings", "footer.txt")).TrimEnd();
         }
     }
 }
