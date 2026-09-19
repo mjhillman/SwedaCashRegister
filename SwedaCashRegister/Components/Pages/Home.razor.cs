@@ -16,7 +16,7 @@ namespace SwedaCashRegister.Components.Pages
 
         private const int ButtonHeight = 40;
         private const int ButtonWidth = 40;
-        private const int ButtonMargin = 20;
+        private const int ButtonMargin = 15;
         private const double RowGap = 0.5; // rem — MUST match .button-row's margin-bottom in CSS
 
         private const int BigButtonWidth = 110;
@@ -36,17 +36,17 @@ namespace SwedaCashRegister.Components.Pages
         public string Suffix { get; set; } = "ST";
 
         // Each row's buttons, in display order: (Text, Color)
-        private static readonly (string Text, string Color)[][] RowValues = new[]
+        private static readonly (string DisplayText, int Value, string Color)[][] RowValues = new[]
         {
-        new[] { ("900","orange"), ("90", "orange"), ("$9","white"), ("90","white"), ("9","green") },
-        new[] { ("800", "orange"), ("80", "orange"), ("$8","white"), ("80", "white"), ("8","green") },
-        new[] { ("700", "orange"), ("70", "orange"), ("$7","white"), ("70", "white"), ("7","green") },
-        new[] { ("600", "orange"), ("60", "orange"), ("$6","white"), ("60", "white"), ("6","green") },
-        new[] { ("500", "orange"), ("50", "orange"), ("$5","white"), ("50", "white"), ("5","green") },
-        new[] { ("400", "orange"), ("40", "orange"), ("$4","white"), ("40", "white"), ("4","green") },
-        new[] { ("300", "orange"), ("30", "orange"), ("$3","white"), ("30", "white"), ("3","green") },
-        new[] { ("200", "orange"), ("20", "orange"), ("$2","white"), ("20", "white"), ("2","green") },
-        new[] { ("100", "orange"), ("10", "orange"), ("$1","white"), ("10", "white"), ("1","green") },
+        new[] { ("900", 900, "orange"), ("90", 90, "orange"), ("$9", 9, "white"), ("90", 90, "white"), ("9", 9, "green") },
+        new[] { ("800", 800, "orange"), ("80", 80, "orange"), ("$8", 8, "white"), ("80", 80, "white"), ("8", 8, "green") },
+        new[] { ("700", 700, "orange"), ("70", 70, "orange"), ("$7", 7, "white"), ("70", 70, "white"), ("7", 7, "green") },
+        new[] { ("600", 600, "orange"), ("60", 60, "orange"), ("$6", 6, "white"), ("60", 60, "white"), ("6", 6, "green") },
+        new[] { ("500", 500, "orange"), ("50", 50, "orange"), ("$5", 5, "white"), ("50", 50, "white"), ("5", 5, "green") },
+        new[] { ("400", 400, "orange"), ("40", 40, "orange"), ("$4", 4, "white"), ("40", 40, "white"), ("4", 4, "green") },
+        new[] { ("300", 300, "orange"), ("30", 30, "orange"), ("$3", 3, "white"), ("30", 30, "white"), ("3", 3, "green") },
+        new[] { ("200", 200, "orange"), ("20", 20, "orange"), ("$2", 2, "white"), ("20", 20, "white"), ("2", 2, "green") },
+        new[] { ("100", 100, "orange"), ("10", 10, "orange"), ("$1", 1, "white"), ("10", 10, "white"), ("1", 1, "green") },
     };
 
         // column index -> currently-down ROW (digit) in that column
@@ -56,18 +56,25 @@ namespace SwedaCashRegister.Components.Pages
 
         private void SelectKey(int row, int col)
         {
-            if (IsKeyDown(row, col))
+            try
             {
-                // Same key pressed again — release it (put it back up)
-                _downRowByColumn.Remove(col);
-            }
-            else
-            {
-                _downRowByColumn[col] = row;
-            }
+                if (IsKeyDown(row, col))
+                {
+                    _downRowByColumn.Remove(col);
+                }
+                else
+                {
+                    _downRowByColumn[col] = row;
+                }
 
-            decimal amt = 0;
-            GetItemEntry(ref amt);
+                decimal amt = 0;
+                GetItemEntry(ref amt);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SelectKey threw: {ex}");
+                throw; // rethrow so you still see behavior, but now you'll have the real message first
+            }
         }
 
         private void SelectTax(TaxKey key)
@@ -90,8 +97,7 @@ namespace SwedaCashRegister.Components.Pages
 
             foreach (var (col, row) in _downRowByColumn)
             {
-                var (text, _) = RowValues[row][col];
-                int value = int.Parse(text);
+                var (_, value, _) = RowValues[row][col];
 
                 if (col <= 2)
                     dollars += value;
@@ -155,7 +161,13 @@ namespace SwedaCashRegister.Components.Pages
             Suffix = "ST";
             Digits = DisplaySubtotalDigits;
             ResetAllKeys();
+        }
 
+        private void HandleSubtotal()
+        {
+            _transactionState = TransactionStateEnum.Total;
+            Suffix = "ST";
+            Digits = DisplayTotalDigits;
         }
 
         private void HandleTotal()

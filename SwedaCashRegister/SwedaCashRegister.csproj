@@ -42,4 +42,14 @@
   <ItemGroup>
     <ProjectReference Include="..\..\SharedProjects\HITS.Blazor.PushButton\HITS.Blazor.PushButton.csproj" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Update="wwwroot\receipt\Footer.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\receipt\Header.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

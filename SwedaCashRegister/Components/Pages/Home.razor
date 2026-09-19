@@ -50,17 +50,16 @@
                                     @for (int col = 0; col < RowValues[r].Length; col++)
                                     {
                                         var c = col; // fresh local, captured once per col iteration
-                                        var (text, color) = RowValues[r][c];
-                                        <PushButton @key="@($"{r}-{c}")"
-                                                    ButtonHeight="@ButtonHeight"
-                                                    ButtonWidth="@ButtonWidth"
-                                                    Color="@color"
-                                                    Text="@text"
-                                                    Pressed="@(IsKeyDown(r, c))"
-                                                    OnClick="@(() => SelectKey(r, c))" />
+                                        var (displayText, value, color) = RowValues[r][c];
+                                        <PushButton
+                                            ButtonHeight="@ButtonHeight"
+                                            ButtonWidth="@ButtonWidth"
+                                            Color="@color"
+                                            Text="@displayText"
+                                            Pressed="@(IsKeyDown(r, c))"
+                                            OnClick="@(() => SelectKey(r, c))" />
                                     }
-                                </div>
-                            }
+                                </div>                            }
                         </div>
 
                         <div class="total-column">
@@ -80,8 +79,6 @@
                                         ShowHighlight="false"
                                         Class="enter-button"
                                         OnClick="@(() => HandleItemVoid(TaxKey.NonTaxable))" />
-
-                            <div class="tax-spacer"></div>
 
                             <PushButton ButtonWidth="@BigButtonWidth"
                                         ButtonHeight="@ButtonHeight"
@@ -104,6 +101,13 @@
 
                             <div class="tax-spacer"></div>
 
+                            <PushButton ButtonHeight="@ButtonHeight"
+                                        ButtonWidth="@BigButtonWidth"
+                                        Color="darkgreen"
+                                        Text="SUBTLT"
+                                        ShowHighlight="false"
+                                        Class="enter-button"
+                                        OnClick="HandleSubtotal" />
 
                             <PushButton ButtonHeight="@BigButtonHeight"
                                         ButtonWidth="@BigButtonWidth"
