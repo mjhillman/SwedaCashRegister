@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\Custom\ReceiptGenerator.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Components\Custom\Keyboard.razor" />
     <Content Remove="Components\Custom\SwedaCase.razor" />
   </ItemGroup>
@@ -31,6 +35,7 @@
 
   <ItemGroup>
     <PackageReference Include="MudBlazor" Version="9.*" />
+    <PackageReference Include="QuestPDF" Version="2026.9.0" />
   </ItemGroup>
 
 

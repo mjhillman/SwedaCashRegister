@@ -1,10 +1,8 @@
-using HITS.Blazor.PushButton;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using MudBlazor;
+using QuestPDF.Fluent;
 using SwedaCashRegister.Components.Custom;
 using SwedaCashRegister.Components.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SwedaCashRegister.Components.Pages
 {
@@ -54,20 +52,22 @@ namespace SwedaCashRegister.Components.Pages
         // column index -> currently-down ROW (digit) in that column
         private readonly Dictionary<int, int> _downRowByColumn = new();
 
-        private string[] HeaderLines { get; set; }
-        private string[] FooterLines { get; set; }
-
-        protected override void OnInitialized()
-        {
-            
-        }
-
-        private bool IsKeyDown(int row, int col) =>
-            _downRowByColumn.TryGetValue(col, out var downRow) && downRow == row;
+        private bool IsKeyDown(int row, int col) => _downRowByColumn.TryGetValue(col, out var downRow) && downRow == row;
 
         private void SelectKey(int row, int col)
         {
-            _downRowByColumn[col] = row;
+            if (IsKeyDown(row, col))
+            {
+                // Same key pressed again — release it (put it back up)
+                _downRowByColumn.Remove(col);
+            }
+            else
+            {
+                _downRowByColumn[col] = row;
+            }
+
+            decimal amt = 0;
+            GetItemEntry(ref amt);
         }
 
         private void SelectTax(TaxKey key)
@@ -100,6 +100,11 @@ namespace SwedaCashRegister.Components.Pages
             }
 
             itemAmount = dollars + (cents / 100m);
+            long totalCents = (long)Math.Round(itemAmount * 100m, MidpointRounding.AwayFromZero);
+            totalCents = Math.Clamp(totalCents, 0, 999999);
+            Digits = totalCents.ToString("D6");
+            Suffix = "";
+
 
             if (_taxSelection == TaxKey.Taxable) return true;
             return false;
@@ -120,33 +125,33 @@ namespace SwedaCashRegister.Components.Pages
             bool isTaxable = GetItemEntry(ref itemAmount);
             if (isTaxable)
             {
-                _currentTransaction.ItemList.Add(new Item("Taxable", true, 1, "Item", itemAmount));
+                _currentTransaction.ItemList.Add(new Item(Item.TAXABLE, true, 1, "TX Item", itemAmount));
             }
             else
             {
-                _currentTransaction.ItemList.Add(new Item("Non-Tax", false, 1, "Item", itemAmount));
+                _currentTransaction.ItemList.Add(new Item(Item.NON_TAX, false, 1, "NT Item", itemAmount));
             }
-            _currentTransaction.CalculateSubtotal();
-            Suffix = "ST";
+
             Digits = DisplaySubtotalDigits;
+            Suffix = "ST";
             ResetAllKeys();
         }
 
         private void HandleItemVoid(TaxKey taxKey)
         {
+            if (_transactionState == TransactionStateEnum.New) return;
             _taxSelection = taxKey;
             _transactionState = TransactionStateEnum.ItemEntry;
             decimal itemAmount = 0;
             bool isTaxable = GetItemEntry(ref itemAmount);
             if (isTaxable)
             {
-                _currentTransaction.ItemList.Add(new Item("Taxable", true, 1, "Void", itemAmount * -1));
+                _currentTransaction.ItemList.Add(new Item(Item.TAXABLE, true, 1, "Void TX", itemAmount * -1));
             }
             else
             {
-                _currentTransaction.ItemList.Add(new Item("Non-Tax", false, 1, "Void", itemAmount * -1));
+                _currentTransaction.ItemList.Add(new Item(Item.NON_TAX, false, 1, "Void NT", itemAmount * -1));
             }
-            _currentTransaction.CalculateSubtotal();
             Suffix = "ST";
             Digits = DisplaySubtotalDigits;
             ResetAllKeys();
@@ -156,11 +161,11 @@ namespace SwedaCashRegister.Components.Pages
         private void HandleTotal()
         {
             _transactionState = TransactionStateEnum.Total;
-            _currentTransaction.CalculateTotal();
             Suffix = "TL";
             Digits = DisplayTotalDigits;
             ResetAllKeys();
             _ = ShowReceipt();
+            HandleReset();
         }
 
         private string DisplayTotalDigits
@@ -187,16 +192,17 @@ namespace SwedaCashRegister.Components.Pages
 
         private async Task ShowReceipt()
         {
-            string receiptText = ReceiptGenerator.GenerateReceipt(_currentTransaction, ReceiptTemplate.Header, ReceiptTemplate.Footer);
-
-            var parameters = new DialogParameters<ReceiptDialog>
+            try
             {
-                { x => x.ReceiptText, receiptText }
-            };
-
-            var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
-
-            await DialogService.ShowAsync<ReceiptDialog>("Receipt", parameters, options);
+                string receiptText = ReceiptGenerator.GenerateReceipt(_currentTransaction, ReceiptTemplate.Header, ReceiptTemplate.Footer);
+                var pdfDocument = ReceiptPdfGenerator.GeneratePdf(receiptText);
+                pdfDocument.GeneratePdfAndShow();
+                string path = ReceiptPdfGenerator.SavePdfToDisk($"{DateTime.UtcNow:yyMMdd_HHmmss}.txt", receiptText);
+            }
+            catch (Exception ex)
+            {
+                await DialogService.ShowMessageBoxAsync("Error", $"An error occurred while generating the receipt: {ex.Message}");
+            }
         }
     }
 }

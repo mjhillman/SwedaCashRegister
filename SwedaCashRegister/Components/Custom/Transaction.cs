@@ -41,7 +41,7 @@ namespace SwedaCashRegister.Components.Custom
         {
             NonTaxTotal = 0;
             foreach (Item i in ItemList)
-            {
+            { 
                 if (!i.IsTaxable)
                 {
                     NonTaxTotal += i.ItemAmount;
@@ -81,7 +81,8 @@ namespace SwedaCashRegister.Components.Custom
             CalculateTaxableTotal();
             CalculateTaxAmount();
             decimal roundingAmount = CalculateRounding(NonTaxTotal + TaxableTotal + TaxAmount);
-            ItemList.Add(new Item("Rounding", false, 1, "RND", roundingAmount));
+            ItemList.RemoveAll(i => i.ItemName == "RND");
+            ItemList.Add(new Item("RND", false, 1, "RND", roundingAmount));
             return TaxableTotal + NonTaxTotal + TaxAmount + roundingAmount;
         }
 

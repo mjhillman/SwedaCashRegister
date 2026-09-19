@@ -2,6 +2,8 @@
 {
     public class Item
     {
+        public const string NON_TAX = "Non-Tax";
+        public const string TAXABLE = "Taxable";
         public string DeptName { get; set; }
         public bool IsTaxable { get; set; }
         public int ItemQty { get; set; }

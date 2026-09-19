@@ -35,6 +35,7 @@ partial class Program
 
     public static void InitConfiguration()
     {
+        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
         EXECUTING_DIRECTORY = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "";
     }
 }
