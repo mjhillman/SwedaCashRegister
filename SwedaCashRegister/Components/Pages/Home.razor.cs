@@ -38,15 +38,15 @@ namespace SwedaCashRegister.Components.Pages
         // Each row's buttons, in display order: (Text, Color)
         private static readonly (string Text, string Color)[][] RowValues = new[]
         {
-        new[] { ("900","white"), ("90","white"), ("9","white"), ("90","green"), ("9","green") },
-        new[] { ("800","white"), ("80","white"), ("8","white"), ("80","green"), ("8","green") },
-        new[] { ("700","white"), ("70","white"), ("7","white"), ("70","green"), ("7","green") },
-        new[] { ("600","white"), ("60","white"), ("6","white"), ("60","green"), ("6","green") },
-        new[] { ("500","white"), ("50","white"), ("5","white"), ("50","green"), ("5","green") },
-        new[] { ("400","white"), ("40","white"), ("4","white"), ("40","green"), ("4","green") },
-        new[] { ("300","white"), ("30","white"), ("3","white"), ("30","green"), ("3","green") },
-        new[] { ("200","white"), ("20","white"), ("2","white"), ("20","green"), ("2","green") },
-        new[] { ("100","white"), ("10","white"), ("1","white"), ("10","green"), ("1","green") },
+        new[] { ("900","orange"), ("90", "orange"), ("$9","white"), ("90","white"), ("9","green") },
+        new[] { ("800", "orange"), ("80", "orange"), ("$8","white"), ("80", "white"), ("8","green") },
+        new[] { ("700", "orange"), ("70", "orange"), ("$7","white"), ("70", "white"), ("7","green") },
+        new[] { ("600", "orange"), ("60", "orange"), ("$6","white"), ("60", "white"), ("6","green") },
+        new[] { ("500", "orange"), ("50", "orange"), ("$5","white"), ("50", "white"), ("5","green") },
+        new[] { ("400", "orange"), ("40", "orange"), ("$4","white"), ("40", "white"), ("4","green") },
+        new[] { ("300", "orange"), ("30", "orange"), ("$3","white"), ("30", "white"), ("3","green") },
+        new[] { ("200", "orange"), ("20", "orange"), ("$2","white"), ("20", "white"), ("2","green") },
+        new[] { ("100", "orange"), ("10", "orange"), ("$1","white"), ("10", "white"), ("1","green") },
     };
 
         // column index -> currently-down ROW (digit) in that column
