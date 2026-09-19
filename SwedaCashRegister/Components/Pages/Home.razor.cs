@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc.Razor.Internal;
 using MudBlazor;
-using QuestPDF.Fluent;
 using SwedaCashRegister.Components.Custom;
 using SwedaCashRegister.Components.Services;
-using System.Data.Common;
 
 namespace SwedaCashRegister.Components.Pages
 {
@@ -116,7 +113,7 @@ namespace SwedaCashRegister.Components.Pages
                 else
                     cents += value;
             }
-            
+
             itemAmount = dollars + (cents / 100m);
             if (itemAmount == 0m && _lastAmount > 0m)
             {
@@ -191,14 +188,21 @@ namespace SwedaCashRegister.Components.Pages
             Digits = DisplayTotalDigits;
         }
 
-        private void HandleTotal()
+        private async Task HandleTotal()
         {
-            _transactionState = TransactionStateEnum.Total;
-            Suffix = "TL";
-            Digits = DisplayTotalDigits;
-            ResetAllKeys();
-            _ = ShowReceipt();
-            HandleReset();
+            try
+            {
+                _transactionState = TransactionStateEnum.Total;
+                Suffix = "TL";
+                Digits = DisplayTotalDigits;
+                ResetAllKeys();
+                await ShowReceipt();
+                HandleReset();
+            }
+            catch (Exception ex)
+            {
+                await DialogService.ShowMessageBoxAsync("Error", $"An error occurred while generating the receipt: {ex.Message}");
+            }
         }
 
         private void HandleReports()
@@ -246,14 +250,15 @@ namespace SwedaCashRegister.Components.Pages
                 // Append transaction summary to report file
                 var roundingItem = _currentTransaction.ItemList.FirstOrDefault(i => i.ItemName == "RND");
                 decimal roundingAmount = roundingItem?.ItemAmount ?? 0m;
-                
+
                 string reportText = $"{Path.GetFileNameWithoutExtension(receiptFileName)},{_currentTransaction.TaxableTotal},{_currentTransaction.NonTaxTotal}, {_currentTransaction.TaxAmount},{roundingAmount}{Environment.NewLine}";
                 RecordTransaction.AppendReport(reportFileName, reportText);
 
-                // Generate and display the PDF receipt
-                var pdfDocument = ReceiptPdfGenerator.GeneratePdf(receiptText);
-                pdfDocument.GeneratePdfAndShow();
-                
+                var parameters = new DialogParameters<ReceiptDialog> { { x => x.ReceiptText, receiptText } };
+
+                var options = new DialogOptions{ CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+                await DialogService.ShowAsync<ReceiptDialog>("Receipt", parameters, options);
             }
             catch (Exception ex)
             {

@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-using QuestPDF.Fluent;
+﻿using QuestPDF.Fluent;
 using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
-using System.IO;
-using SwedaCashRegister.Components.Custom;
 
 namespace SwedaCashRegister.Components.Services
 {

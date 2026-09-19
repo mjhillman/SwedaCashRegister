@@ -1,6 +1,4 @@
-﻿using static MudBlazor.CategoryTypes;
-
-namespace SwedaCashRegister.Components.Custom
+﻿namespace SwedaCashRegister.Components.Custom
 {
     /// <summary>
     /// Represents a sales transaction that tracks items, taxable and non-taxable totals, tax amounts, and provides
@@ -35,14 +33,14 @@ namespace SwedaCashRegister.Components.Custom
             else
             {
                 CalculateNonTaxableTotal();
-            }            
+            }
         }
 
         public void CalculateNonTaxableTotal()
         {
             NonTaxTotal = 0;
             foreach (Item i in ItemList)
-            { 
+            {
                 if (!i.IsTaxable)
                 {
                     NonTaxTotal += i.ItemAmount;

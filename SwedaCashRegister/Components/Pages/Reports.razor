@@ -30,7 +30,7 @@
                 }
                 else
                 {
-                    <MudList T="string" Clickable="false">
+                    <MudList T="string">
                         @foreach (var file in ReportFiles)
                         {
                             <MudListItem T="string">
@@ -121,12 +121,12 @@
     private string ReceiptsPath => Path.Combine(Program.EXECUTING_DIRECTORY, "wwwroot", "receipts");
 
     private List<string> ReportFiles = new();
-    private string? SelectedReportFile;
+    private string SelectedReportFile;
     private List<ReportLine> CurrentReportLines = new();
 
-    private string? SelectedTransactionId;
-    private string? SelectedReceiptText;
-    private string? SelectedReceiptPdfUrl;
+    private string SelectedTransactionId;
+    private string SelectedReceiptText;
+    private string SelectedReceiptPdfUrl;
 
     protected override void OnInitialized()
     {

@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-
-namespace SwedaCashRegister.Components.Custom
+﻿namespace SwedaCashRegister.Components.Custom
 {
     public class ReportType
     {
