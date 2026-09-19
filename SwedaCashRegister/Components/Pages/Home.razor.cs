@@ -13,6 +13,10 @@ namespace SwedaCashRegister.Components.Pages
 
         private enum TransactionStateEnum { New, ItemEntry, Total }
         private TransactionStateEnum _transactionState = TransactionStateEnum.New;
+        private decimal _lastAmount = 0m;
+
+        private const int NameplateButtonWidth = 100;
+        private const int NameplateButtonHeight = 40;
 
         private const int ButtonHeight = 40;
         private const int ButtonWidth = 40;
@@ -94,7 +98,6 @@ namespace SwedaCashRegister.Components.Pages
             _transactionState = TransactionStateEnum.ItemEntry;
             int dollars = 0;   // from columns 0,1,2 (hundreds/tens/ones of dollars)
             int cents = 0;     // from columns 3,4 (tens/ones of cents)
-
             foreach (var (col, row) in _downRowByColumn)
             {
                 var (_, value, _) = RowValues[row][col];
@@ -104,8 +107,16 @@ namespace SwedaCashRegister.Components.Pages
                 else
                     cents += value;
             }
-
+            
             itemAmount = dollars + (cents / 100m);
+            if (itemAmount == 0m && _lastAmount > 0m)
+            {
+                itemAmount = _lastAmount;
+            }
+            else
+            {
+                _lastAmount = itemAmount;
+            }
             long totalCents = (long)Math.Round(itemAmount * 100m, MidpointRounding.AwayFromZero);
             totalCents = Math.Clamp(totalCents, 0, 999999);
             Digits = totalCents.ToString("D6");
@@ -119,6 +130,7 @@ namespace SwedaCashRegister.Components.Pages
         private void HandleReset()
         {
             _transactionState = TransactionStateEnum.New;
+            _lastAmount = 0m;
             _currentTransaction = new Transaction();
             ResetAllKeys();
             Digits = DisplayTotalDigits;
@@ -178,6 +190,14 @@ namespace SwedaCashRegister.Components.Pages
             ResetAllKeys();
             _ = ShowReceipt();
             HandleReset();
+        }
+
+        private void HandleReports()
+        {
+        }
+
+        private void HandleSettings()
+        {
         }
 
         private string DisplayTotalDigits

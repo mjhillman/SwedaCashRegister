@@ -17,7 +17,7 @@ namespace SwedaCashRegister.Components.Services
                 {
                     page.Size(PageSizes.A6);
                     page.Margin(15);
-                    page.DefaultTextStyle(x => x.FontFamily("Lato").FontSize(9));
+                    page.DefaultTextStyle(x => x.FontFamily("Courier New").FontSize(9));
                     page.Content().Text(receiptText);
                 });
             });

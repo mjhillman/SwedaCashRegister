@@ -35,7 +35,20 @@
         </div>
 
         <div class="register-nameplate">
-            <span class="nameplate-text">SWEDA</span>
+            <div class="nameplate-buttons">
+                <PushButton ButtonWidth="@NameplateButtonWidth" 
+                            ButtonHeight="@NameplateButtonHeight"
+                            Color="blue" 
+                            Text="Settings" 
+                            ShowHighlight="false"
+                            OnClick="HandleSettings" />
+                <PushButton ButtonWidth="@NameplateButtonWidth" 
+                            ButtonHeight="@NameplateButtonHeight"
+                            Color="blue" 
+                            Text="Reports" 
+                            ShowHighlight="false"
+                            OnClick="HandleReports" />
+            </div>
         </div>
 
         <div class="register-keyboard-bay">
@@ -111,7 +124,7 @@
 
                             <PushButton ButtonHeight="@BigButtonHeight"
                                         ButtonWidth="@BigButtonWidth"
-                                        Color="blue"
+                                        Color="darkgreen"
                                         Text="TOTAL"
                                         ShowHighlight="false"
                                         Class="enter-button"

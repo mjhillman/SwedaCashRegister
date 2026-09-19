@@ -31,7 +31,7 @@ namespace SwedaCashRegister.Components.Services
 
                 if (nonTaxItems.Count > 1)
                 {
-                    sb.AppendLine(FormatTotalLine("Non-Taxable Subtotal", transaction.NonTaxTotal));
+                    sb.AppendLine(FormatTotalLine("Non-Tax Subtotal", transaction.NonTaxTotal));
                     sb.AppendLine();
                 }
             }
@@ -56,13 +56,16 @@ namespace SwedaCashRegister.Components.Services
             }
 
             // ---- Tax / Rounding / Total ----
-            sb.AppendLine(FormatTotalLine("Sales Tax", transaction.TaxAmount));
+            if (transaction.TaxAmount > 0)
+            {
+                sb.AppendLine(FormatItemLine("Sales Tax", transaction.TaxAmount));
+            }
 
             var roundingItem = transaction.ItemList.FirstOrDefault(i => i.ItemName == "RND");
             decimal roundingAmount = roundingItem?.ItemAmount ?? 0m;
             if (roundingAmount != 0)
             {
-                sb.AppendLine(FormatTotalLine("Rounding", roundingAmount));
+                sb.AppendLine(FormatItemLine("Rounding", roundingAmount));
             }
 
             sb.AppendLine(new string('-', ReceiptWidth));
