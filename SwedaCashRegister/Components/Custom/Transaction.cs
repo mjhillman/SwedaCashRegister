@@ -19,8 +19,9 @@ namespace SwedaCashRegister.Components.Custom
         public decimal TaxAmount { get; set; }
         public List<Item> ItemList { get; set; }
 
-        public Transaction()
+        public Transaction(decimal taxRate)
         {
+            TaxRate = taxRate;
             ItemList = new List<Item>();
         }
 

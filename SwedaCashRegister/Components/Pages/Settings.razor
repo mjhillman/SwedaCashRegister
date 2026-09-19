@@ -1,14 +1,74 @@
 ﻿@page "/Settings"
+@using SwedaCashRegister.Components.Services
+@using MudBlazor
+@inject IReceiptTemplateProvider Templates
+@inject ISnackbar Snackbar
 
-//the header and footer are store in text files in the wwwroot/receiptSettings directory
-//we need header.txt file editor, freeform the user can type whatever they want.
-//we need footer.txt file editor, freeform the user can type whatever they want.
-//the user can the set sales tax rate (no tax chart support), the sales tax should be read at startup just like the header and footer files.
-//all this in the same page
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 mb-5" Style="background-color:lightblue;">
+    <MudStack Row="true" Class="pt-5">
+        <MudText Typo="Typo.h4" Class="mb-4">Settings</MudText>
+        <div class="d-flex justify-space-between align-center mb-2">
+            <MudButton Class="ml-20" Size="Size.Small" Color="Color.Info" Variant="Variant.Filled" Href="/">Back</MudButton>
+        </div>
+    </MudStack>
 
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="background-color:seashell;">
+        <MudText Typo="Typo.h6" Class="mb-2">Receipt Header</MudText>
+        <MudTextField @bind-Value="HeaderText" Lines="6" Variant="Variant.Outlined" FullWidth="true" />
+        <MudButton Class="mt-2" Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveHeader">
+            Save Header
+        </MudButton>
+    </MudPaper>
 
-<h3>Settings</h3>
+    <MudPaper Class="pa-4 mb-4" Elevation="2" Style="background-color:seashell;">
+        <MudText Typo="Typo.h6" Class="mb-2">Receipt Footer</MudText>
+        <MudTextField @bind-Value="FooterText" Lines="6" Variant="Variant.Outlined" FullWidth="true" />
+        <MudButton Class="mt-2" Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveFooter">
+            Save Footer
+        </MudButton>
+    </MudPaper>
+
+    <MudPaper Class="pa-4 mb-5" Elevation="2" Style="background-color:seashell;">
+        <MudText Typo="Typo.h6" Class="mb-2">Sales Tax Rate</MudText>
+        <MudNumericField @bind-Value="TaxRatePercent" Label="Tax Rate (%)" Variant="Variant.Outlined"
+                          Format="F3" Min="0" Max="100" Step="0.001m" Style="max-width:200px;" />
+        <MudText Typo="Typo.caption" Class="mt-1 d-block mud-text-secondary">
+            Example: 6.625 for 6.625%
+        </MudText>
+        <MudButton Class="mt-2" Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveTaxRate">
+            Save Tax Rate
+        </MudButton>
+    </MudPaper>
+    <br /><br />
+</MudContainer>
 
 @code {
+    private string HeaderText = "";
+    private string FooterText = "";
+    private decimal TaxRatePercent;
 
+    protected override void OnInitialized()
+    {
+        HeaderText = Templates.Header;
+        FooterText = Templates.Footer;
+        TaxRatePercent = Templates.TaxRate * 100m; // stored as a decimal fraction, edited as a percent
+    }
+
+    private void SaveHeader()
+    {
+        Templates.SaveHeader(HeaderText);
+        Snackbar.Add("Header saved.", Severity.Success);
+    }
+
+    private void SaveFooter()
+    {
+        Templates.SaveFooter(FooterText);
+        Snackbar.Add("Footer saved.", Severity.Success);
+    }
+
+    private void SaveTaxRate()
+    {
+        Templates.SaveTaxRate(TaxRatePercent / 100m); // store back as a decimal fraction
+        Snackbar.Add("Tax rate saved.", Severity.Success);
+    }
 }

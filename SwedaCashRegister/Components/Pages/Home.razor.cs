@@ -37,7 +37,7 @@ namespace SwedaCashRegister.Components.Pages
 
         private enum TaxKey { None, Taxable, NonTaxable }
         private TaxKey _taxSelection = TaxKey.None;
-        private Transaction _currentTransaction = new Transaction();
+        private Transaction _currentTransaction;
 
         public string Digits { get; set; } = "000000";
         public string Suffix { get; set; } = "ST";
@@ -55,6 +55,12 @@ namespace SwedaCashRegister.Components.Pages
         new[] { ("200", 200, "orange"), ("20", 20, "orange"), ("$2", 2, "white"), ("20", 20, "white"), ("2", 2, "green") },
         new[] { ("100", 100, "orange"), ("10", 10, "orange"), ("$1", 1, "white"), ("10", 10, "white"), ("1", 1, "green") },
     };
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            _currentTransaction = new Transaction(ReceiptTemplate.TaxRate);
+        }
 
         // column index -> currently-down ROW (digit) in that column
         private readonly Dictionary<int, int> _downRowByColumn = new();
@@ -134,7 +140,7 @@ namespace SwedaCashRegister.Components.Pages
         {
             _transactionState = TransactionStateEnum.New;
             _lastAmount = 0m;
-            _currentTransaction = new Transaction();
+            _currentTransaction = new Transaction(ReceiptTemplate.TaxRate);
             ResetAllKeys();
             Digits = DisplayTotalDigits;
         }
