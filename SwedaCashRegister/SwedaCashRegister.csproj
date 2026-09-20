@@ -24,17 +24,6 @@
   <ItemGroup>
     <None Remove="Components\Custom\Keyboard.razor.css" />
     <None Remove="Components\Custom\SwedaCase.razor.css" />
-    <None Remove="Footer.txt" />
-    <None Remove="Header.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Footer.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Header.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
 
