@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\receipts\" />
+    <Folder Include="wwwroot\reports\" />
   </ItemGroup>
 
 

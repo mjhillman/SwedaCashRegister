@@ -1,5 +1,13 @@
 ﻿namespace SwedaCashRegister.Components.Services
 {
+    /// <summary>
+    /// Represents a provider that exposes the receipt header, footer, and tax rate and allows saving updated values to
+    /// persistent storage.
+    /// </summary>
+    /// <remarks>Implementations are responsible for storage, validation, and concurrency semantics. Property
+    /// getters reflect the current persisted values; SaveHeader, SaveFooter, and SaveTaxRate persist changes and may
+    /// throw exceptions for validation or storage failures. Transactionality and storage location are
+    /// implementation-specific.</remarks>
     public interface IReceiptTemplateProvider
     {
         string Header { get; }
@@ -11,6 +19,14 @@
         void SaveTaxRate(decimal rate);
     }
 
+    /// <summary>
+    /// Provides loading and persistence of receipt header, footer, and tax rate settings stored as files in the
+    /// application's web root "receiptSettings" directory.
+    /// </summary>
+    /// <remarks>Reads files on construction and creates the settings directory if missing. Header and Footer
+    /// are loaded from header.txt and footer.txt and trimmed of trailing whitespace. TaxRate is loaded from taxrate.txt
+    /// using invariant culture; if the file is missing or cannot be parsed the provider uses 0.06625m. SaveHeader,
+    /// SaveFooter, and SaveTaxRate persist values to their corresponding files.</remarks>
     public sealed class ReceiptTemplateProvider : IReceiptTemplateProvider
     {
         private readonly string _settingsPath;

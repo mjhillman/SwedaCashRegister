@@ -1,5 +1,11 @@
 ﻿namespace SwedaCashRegister.Components.Custom
 {
+    /// <summary>
+    /// Represents a financial report that captures a timestamp and aggregated monetary totals for taxable amounts,
+    /// non-taxable amounts, tax collected, and rounding adjustments.
+    /// </summary>
+    /// <remarks>Used to transfer or serialize summarized transaction totals for a reporting period; monetary
+    /// values are represented as decimal.</remarks>
     public class ReportType
     {
         public string TimeStamp { get; set; }
@@ -11,19 +17,6 @@
         public ReportType()
         {
 
-        }
-
-        public ReportType(string csvLine)
-        {
-            string[] values = csvLine.Split(',');
-            if (values.Length == 5)
-            {
-                TimeStamp = values[0];
-                TaxableTotal = Convert.ToDecimal(values[1]);
-                NonTaxableTotal = Convert.ToDecimal(values[2]);
-                TaxCollected = Convert.ToDecimal(values[3]);
-                RoundingAmount = Convert.ToDecimal(values[4]);
-            }
         }
     }
 }

@@ -83,6 +83,7 @@
                                         Text="VOID-TX"
                                         ShowHighlight="false"
                                         Class="enter-button"
+                                        Disabled = "@TotalButtonDisabled"
                                         OnClick="@(() => HandleItemVoid(TaxKey.Taxable))" />
 
                             <PushButton ButtonHeight="@ButtonHeight"
@@ -91,6 +92,7 @@
                                         Text="VOID-NT"
                                         ShowHighlight="false"
                                         Class="enter-button"
+                                        Disabled = "@TotalButtonDisabled"
                                         OnClick="@(() => HandleItemVoid(TaxKey.NonTaxable))" />
 
                             <PushButton ButtonWidth="@BigButtonWidth"
@@ -120,6 +122,7 @@
                                         Text="SUBTLT"
                                         ShowHighlight="false"
                                         Class="enter-button"
+                                        Disabled = "@TotalButtonDisabled"
                                         OnClick="HandleSubtotal" />
 
                             <PushButton ButtonHeight="@BigButtonHeight"
@@ -128,6 +131,7 @@
                                         Text="TOTAL"
                                         ShowHighlight="false"
                                         Class="enter-button"
+                                        Disabled = "@TotalButtonDisabled"
                                         OnClick="HandleTotal" />
 
 
@@ -135,7 +139,7 @@
                                         ButtonWidth="@BigButtonWidth"
                                         Color="red"
                                         Text="RESET"
-                                        ShowHighlight="false"
+                                        ShowHighlight="false"                                        
                                         Class="enter-button"
                                         OnClick="HandleReset" />
 
