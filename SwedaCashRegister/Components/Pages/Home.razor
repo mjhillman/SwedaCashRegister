@@ -1,0 +1,157 @@
+﻿@page "/"
+@using HITS.Blazor.PushButton
+@using SwedaCashRegister.Components.Custom
+@inject IJSRuntime JS
+
+<PageTitle>Home</PageTitle>
+
+<MudContainer Class="d-flex align-center justify-center">
+<div class="register-case">
+    <div class="register-shell">
+
+        <div class="register-vents">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="register-display-bay">
+            <div class="display-panel">
+                <div class="display-bezel">
+                    <div class="display-window">
+                        <span class="display-digit">@GetDigit(0)</span>
+                        <span class="display-comma"></span>
+                        <span class="display-digit">@GetDigit(1)</span>
+                        <span class="display-digit">@GetDigit(2)</span>
+                        <span class="display-digit">@GetDigit(3)</span>
+                        <span class="display-dot"></span>
+                        <span class="display-digit">@GetDigit(4)</span>
+                        <span class="display-digit">@GetDigit(5)</span>
+                        @if (!string.IsNullOrEmpty(Suffix))
+                        {
+                            <span class="display-suffix">@Suffix</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="register-nameplate">
+            <div class="nameplate-buttons">
+                <PushButton ButtonWidth="@NameplateButtonWidth" 
+                            ButtonHeight="@NameplateButtonHeight"
+                            Color="blue" 
+                            Text="Settings" 
+                            ShowHighlight="false"
+                            OnClick="HandleSettings" />
+                <PushButton ButtonWidth="@NameplateButtonWidth" 
+                            ButtonHeight="@NameplateButtonHeight"
+                            Color="blue" 
+                            Text="Reports" 
+                            ShowHighlight="false"
+                            OnClick="HandleReports" />
+            </div>
+        </div>
+
+        <div class="register-keyboard-bay">
+            <div class="keyboard-cluster">
+                <div class="button-keyboard">
+                    <div class="keyboard-cluster" style="--btn-size:@(ButtonMargin)px; --row-gap:@(RowGap)rem;">
+                        <div class="button-keyboard">
+                            @for (int row = 0; row < RowValues.Length; row++)
+                            {
+                                var r = row; // fresh local, captured once per row iteration
+                                <div class="button-row">
+                                    @for (int col = 0; col < RowValues[r].Length; col++)
+                                    {
+                                        var c = col; // fresh local, captured once per col iteration
+                                        var (displayText, value, color) = RowValues[r][c];
+                                        <PushButton
+                                            ButtonHeight="@ButtonHeight"
+                                            ButtonWidth="@ButtonWidth"
+                                            Color="@color"
+                                            Text="@displayText"
+                                            Pressed="@(IsKeyDown(r, c))"
+                                            OnClick="@(() => SelectKey(r, c))" />
+                                    }
+                                </div>                            }
+                        </div>
+
+                        <div class="total-column">
+                            
+                            <PushButton ButtonHeight="@ButtonHeight"
+                                        ButtonWidth="@BigButtonWidth"
+                                        Color="red"
+                                        Text="VOID-TX"
+                                        ShowHighlight="false"
+                                        Class="enter-button"
+                                        Disabled = "@TotalButtonDisabled"
+                                        OnClick="@(() => HandleItemVoid(TaxKey.Taxable))" />
+
+                            <PushButton ButtonHeight="@ButtonHeight"
+                                        ButtonWidth="@BigButtonWidth"
+                                        Color="red"
+                                        Text="VOID-NT"
+                                        ShowHighlight="false"
+                                        Class="enter-button"
+                                        Disabled = "@TotalButtonDisabled"
+                                        OnClick="@(() => HandleItemVoid(TaxKey.NonTaxable))" />
+
+                            <PushButton ButtonWidth="@BigButtonWidth"
+                                        ButtonHeight="@ButtonHeight"
+                                        Color="gold"
+                                        Class="enter-button"
+                                        ShowHighlight="false"
+                                        Text="TAXABLE"
+                                        Pressed="@(_taxSelection == TaxKey.Taxable)"
+                                        OnClick="@(() => SelectTax(TaxKey.Taxable))" />
+
+
+                            <PushButton ButtonWidth="@BigButtonWidth"
+                                        ButtonHeight="@ButtonHeight"
+                                        Color="gold"
+                                        Class="enter-button"
+                                        ShowHighlight="false"
+                                        Text="NON-TAX"
+                                        Pressed="@(_taxSelection == TaxKey.NonTaxable)"
+                                        OnClick="@(() => SelectTax(TaxKey.NonTaxable))" />
+
+                            <div class="tax-spacer"></div>
+
+                            <PushButton ButtonHeight="@ButtonHeight"
+                                        ButtonWidth="@BigButtonWidth"
+                                        Color="darkgreen"
+                                        Text="SUBTLT"
+                                        ShowHighlight="false"
+                                        Class="enter-button"
+                                        Disabled = "@TotalButtonDisabled"
+                                        OnClick="HandleSubtotal" />
+
+                            <PushButton ButtonHeight="@BigButtonHeight"
+                                        ButtonWidth="@BigButtonWidth"
+                                        Color="darkgreen"
+                                        Text="TOTAL"
+                                        ShowHighlight="false"
+                                        Class="enter-button"
+                                        Disabled = "@TotalButtonDisabled"
+                                        OnClick="HandleTotal" />
+
+
+                            <PushButton ButtonHeight="@ButtonHeight"
+                                        ButtonWidth="@BigButtonWidth"
+                                        Color="red"
+                                        Text="RESET"
+                                        ShowHighlight="false"                                        
+                                        Class="enter-button"
+                                        OnClick="HandleReset" />
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="register-base"></div>
+    </div>
+</div>
+</MudContainer>
+

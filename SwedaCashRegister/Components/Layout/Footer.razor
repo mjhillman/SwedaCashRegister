@@ -1,0 +1,41 @@
+﻿<style>
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        background-color: #0d337c;
+        color: white;
+    }
+
+    .footer-text {
+        font-size: 0.75rem;
+        color: white;
+        text-align: center;
+        line-height: 1.2;
+        text-decoration: none;
+    }
+
+        .footer-text a {
+            color: white;
+            text-decoration: none;
+        }
+
+            .footer-text a:hover {
+                color: white;
+                text-decoration: underline;
+            }
+
+    @@media (max-width: 600px) {
+        .footer-text {
+            font-size: 0.6rem;
+        }
+    }
+</style>
+
+<div class="footer">
+    <MudText Typo="Typo.caption" Align="Align.Center" Class="footer-text">
+        Copyright© @DateTime.Now.Year <a href="https://manitusoftware.us" target="_blank">Manitu Software</a> All Rights Reserved
+    </MudText>
+</div>
